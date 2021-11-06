@@ -2,6 +2,7 @@ monitor
 a.out
 settings.json
 *.o
-build/*
+out/*
 *.json
 .github/**
+.vs/*
