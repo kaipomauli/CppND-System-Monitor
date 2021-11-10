@@ -1,33 +1,66 @@
-#include <unistd.h>
-#include <cctype>
-#include <sstream>
-#include <string>
-#include <vector>
-
 #include "process.h"
 
 using std::string;
 using std::to_string;
 using std::vector;
 
-// TODO: Return this process's ID
-int Process::Pid() { return 0; }
+
+int Process::getPid() { return pid_; }
+
 
 // TODO: Return this process's CPU utilization
-float Process::CpuUtilization() { return 0; }
+void Process::setCpuUtilization() { 
+    unsigned long int utime, stime, cutime, cstime, starttime,TotTime,
+      PrevTotTime, PrevSeconds, Seconds,  totald, secsld,Sys_uptime;
+        
+    vector<unsigned long> new_data = LinuxParser::CpuUtil(pid_);
+    Sys_uptime = LinuxParser::UpTime();
+    
 
-// TODO: Return the command that generated this process
-string Process::Command() { return string(); }
+    utime = new_data[0];
+    stime = new_data[1];
+    cutime = new_data[2];
+    cstime = new_data[3];
+    starttime = new_data[4];
 
-// TODO: Return this process's memory utilization
-string Process::Ram() { return string(); }
+    PrevTotTime = prev_utime + prev_stime + prev_cutime + prev_cstime;
+    TotTime = utime + stime + cutime + cstime;
+    totald = TotTime - PrevTotTime;
+    PrevSeconds = prev_Sys_uptime - prev_starttime;
+    Seconds = Sys_uptime - starttime;
+    secsld = Seconds - PrevSeconds;
 
-// TODO: Return the user (name) that generated this process
-string Process::User() { return string(); }
+    prev_utime = utime;
+    prev_stime = stime;
+    prev_cutime = cutime;
+    prev_cstime = cstime;
+    prev_starttime = starttime;
+    prev_Sys_uptime = Sys_uptime;
 
-// TODO: Return the age of this process (in seconds)
-long int Process::UpTime() { return 0; }
+    float cpuPercentage = secsld > 0 ? float(totald) / float(secsld):0.0;
+    util_ = cpuPercentage;
+    
+}
 
-// TODO: Overload the "less than" comparison operator for Process objects
-// REMOVE: [[maybe_unused]] once you define the function
-bool Process::operator<(Process const& a[[maybe_unused]]) const { return true; }
+
+string Process::Command() { return cmd_; }
+
+
+string Process::Ram() { return ram_; }
+
+
+  
+long int Process::UpTime() { return proc_uptime_; }
+
+
+bool Process::operator<(Process& a ) { 
+    bool cpuEqu = this->CpuUtilization() == a.CpuUtilization();
+  float ramThis = std::stof(this->Ram());
+    float ram_a = std::stof(a.Ram());
+  bool ramSmOEqu = ramThis <= ram_a;
+    bool cpuSmaller = this->CpuUtilization() < a.CpuUtilization();
+  bool finalAns = cpuEqu ? ramSmOEqu : cpuSmaller;
+      return finalAns;
+             
+}
+

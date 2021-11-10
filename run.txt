@@ -1,1 +1,3 @@
-./mnt/c/users/guillaume.batun/Documents/Pers/C++/CppND-System-Monitor/out/build/WSL-GCC-Release/monitor
+/mnt/c/users/guillaume.batun/Documents/Pers/C++/CppND-System-Monitor/out/build/WSL-GCC-Release/monitor
+
+/mnt/c/users/guillaume.batun/Documents/Pers/C++/CppND-System-Monitor/out/build/WSL-GCC-Debug/monitor
