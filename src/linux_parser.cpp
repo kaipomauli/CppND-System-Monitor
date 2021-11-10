@@ -5,11 +5,29 @@
 #include <vector>
 #include <cassert>
 #include "linux_parser.h"
+#include <iostream>
+#include <string>
+#include <algorithm>
+
+
+
 
 using std::stof;
 using std::string;
 using std::to_string;
 using std::vector;
+
+std::string LinuxParser::ltrim(const std::string& s) {
+  size_t start = s.find_first_not_of(WHITESPACE);
+  return (start == std::string::npos) ? "" : s.substr(start);
+}
+
+std::string LinuxParser::rtrim(const std::string& s) {
+  size_t end = s.find_last_not_of(WHITESPACE);
+  return (end == std::string::npos) ? "" : s.substr(0, end + 1);
+}
+
+std::string LinuxParser::trim(const std::string& s) { return rtrim(ltrim(s)); }
 
 
 string LinuxParser::OperatingSystem() {
@@ -60,7 +78,7 @@ vector<int> LinuxParser::Pids() {
       // Is every character of the name a digit?
       string filename(file->d_name);
       if (std::all_of(filename.begin(), filename.end(), isdigit)) {
-        int pid = stoi(filename);
+        int pid = stoi(trim(filename));
         pids.push_back(pid);
       }
     }
@@ -94,13 +112,21 @@ float LinuxParser::MemoryUtilization() {
       std::istringstream linestream(line);
       while (linestream >> key >> value >>unit ) {
         if (key == "MemFree") {
-          
-          memfree=std::stof(value);
+        try{
+          memfree=std::stof(trim(value));
+        }
+        catch (std::invalid_argument& e) {
+          std::cout << "fault in stof in system Mem Utilization" << std::endl;
+        }
           memfreeSet = true;
         }
         if (key == "MemTotal") {
-         
-          memtotal = std::stof(value);
+         try{
+          memtotal = std::stof(trim(value));
+        }
+        catch (std::invalid_argument& e) {
+          std::cout << "fault in stof in system Mem Utilization" << std::endl;
+        }
           memtotalSet = true;
         }
       }
@@ -126,8 +152,12 @@ long LinuxParser::UpTime() {
     if(std::getline(filestream, line)) {
       std::istringstream linestream(line);
       linestream >> key >> value;
-
-      uptime = std::stoi(key);
+    try{
+      uptime = std::stoi(trim(key));
+    }
+    catch (std::invalid_argument& e) {
+      std::cout << "fault in stoi in System uptime" << std::endl;
+    }
       return uptime;     
     } else {
       std::cout << "Could not get line." << std::endl;
@@ -161,7 +191,7 @@ vector<unsigned long> LinuxParser::CpuUtil(int pid) {
   fs::path fullpath = kProcDirectory / pidPath / kStatFilename;
   std::ifstream filestream(fullpath);
   if (!fs::exists(fullpath)) {
-    std::cout << std::endl<< "CPUUtil: Path does not exist" << std::endl;
+    std::cout << std::endl << "CPUUtil: Path does not exist" << std::endl;
   }
   if (filestream.is_open()) {
     std::getline(filestream, line);
@@ -174,12 +204,15 @@ vector<unsigned long> LinuxParser::CpuUtil(int pid) {
   } else {
     std::cout << std::endl << "CPUUtil: Could not open file." << std::endl;
   }
-  statInt.push_back(std::stoi(statData[13]) / sysconf(_SC_CLK_TCK));
-  statInt.push_back(std::stoi(statData[14]) / sysconf(_SC_CLK_TCK));
-  statInt.push_back(std::stoi(statData[15]) / sysconf(_SC_CLK_TCK));
-  statInt.push_back(std::stoi(statData[16]) / sysconf(_SC_CLK_TCK));
-  statInt.push_back(std::stoi(statData[21]) / sysconf(_SC_CLK_TCK));
-
+  try{
+      statInt.push_back(std::stoi(trim(statData[13])) / sysconf(_SC_CLK_TCK));
+      statInt.push_back(std::stoi(trim(statData[14])) / sysconf(_SC_CLK_TCK));
+      statInt.push_back(std::stoi(trim(statData[15])) / sysconf(_SC_CLK_TCK));
+      statInt.push_back(std::stoi(trim(statData[16])) / sysconf(_SC_CLK_TCK));
+      statInt.push_back(std::stoi(trim(statData[21])) / sysconf(_SC_CLK_TCK));
+   }catch (std::invalid_argument& e) {
+    std::cout << "fault in stoi in CpuUtil with pid" << std::endl;
+    }
 
   return statInt;
 }
@@ -233,7 +266,11 @@ int LinuxParser::TotalProcesses() {
       linestream >> key >> value;
       
       if (key == "processes") {
-          proc = std::stoi(value);
+          try{
+            proc = std::stoi(trim(value));
+           } catch (std::invalid_argument& e) {
+          std::cout << "fault in stoi in TotalProcesses" << std::endl;
+        }
           return proc;
       } else {
         continue;
@@ -263,7 +300,12 @@ int LinuxParser::RunningProcesses() {
       linestream >> key >> value;
 
       if (key == "procs_running") {
-        proc = std::stoi(value);
+        try{
+            proc = std::stoi(trim(value));
+        } catch (std::invalid_argument& e) {
+          std::cout << "fault in stoi in Running processes" << std::endl;
+        }
+      
         return proc;
       } else {
         continue;
@@ -323,7 +365,12 @@ string LinuxParser::Ram(int pid) {
   } else {
     std::cout << "Could not open file." << std::endl;
   }
-  unsigned int ram_kb = std::stoi(ramStr);
+  unsigned int ram_kb;
+  try {
+    ram_kb = std::stoi(trim(ramStr));
+  } catch (std::invalid_argument& e) {
+    std::cout << "fault in stoi in RAM with pid" << std::endl;
+  }
   float ram_Mb = ram_kb / 1024.0;
   return to_string(ram_Mb).substr(0, 5);
 }
@@ -408,6 +455,11 @@ long LinuxParser::UpTime(int pid) {
   } else {
     std::cout << "PID Uptime: Could not open file." << std::endl;
   }
-  long int ut = std::stoi(statData[21])/sysconf(_SC_CLK_TCK);
+  long int ut;
+  try {
+  ut= std::stoi(trim(statData[21])) / sysconf(_SC_CLK_TCK);
+  } catch (std::invalid_argument& e) {
+    std::cout << "fault in stoi in Uptime with pid" << std::endl;
+  }
   return ut;
 }

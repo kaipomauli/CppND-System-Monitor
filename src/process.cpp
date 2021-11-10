@@ -54,9 +54,18 @@ long int Process::UpTime() { return proc_uptime_; }
 
 
 bool Process::operator<(Process& a ) { 
-    bool cpuEqu = this->CpuUtilization() == a.CpuUtilization();
-  float ramThis = std::stof(this->Ram());
-    float ram_a = std::stof(a.Ram());
+        bool cpuEqu = this->CpuUtilization() == a.CpuUtilization();
+      float ramThis;
+        float ram_a; 
+      try {
+        ramThis = std::stof(LinuxParser::trim(this->Ram()));
+        ram_a = std::stof(LinuxParser::trim(a.Ram()));
+      } catch (std::invalid_argument& e) {
+        std::cout << "fault in stof in < operator" << std::endl;
+      }
+  
+ 
+   
   bool ramSmOEqu = ramThis <= ram_a;
     bool cpuSmaller = this->CpuUtilization() < a.CpuUtilization();
   bool finalAns = cpuEqu ? ramSmOEqu : cpuSmaller;

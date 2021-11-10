@@ -56,6 +56,12 @@ std::string Ram(int pid);
 std::string Uid(int pid);
 std::string User(int pid);
 long int UpTime(int pid);
+
+std::string ltrim(const std::string& s);
+std::string rtrim(const std::string& s);
+std::string trim(const std::string& s);
+
+const std::string WHITESPACE = " \n\r\t\f\v";
 };  // namespace LinuxParser
 
 #endif
