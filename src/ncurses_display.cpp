@@ -69,13 +69,19 @@ void NCursesDisplay::DisplayProcesses(std::vector<Process>& processes,
   mvwprintw(window, row, time_column, "TIME+");
   mvwprintw(window, row, command_column, "COMMAND");
   wattroff(window, COLOR_PAIR(2));
+  
+  
   for (int i = 0; i < n; ++i) {
     //You need to take care of the fact that the cpu utilization has already been multiplied by 100.
     // Clear the line
     mvwprintw(window, ++row, pid_column, (string(window->_maxx-2, ' ').c_str()));
-    
+   
     mvwprintw(window, row, pid_column, to_string(processes[i].getPid()).c_str());
+    try {
     mvwprintw(window, row, user_column, processes[i].getUser().c_str());
+    } catch (std::length_error const&) {
+      std::cout << std::endl << "caught it" << std::endl;
+    }
     float cpu = processes[i].CpuUtilization() * 100;
     mvwprintw(window, row, cpu_column, to_string(cpu).substr(0, 4).c_str());
     mvwprintw(window, row, ram_column, processes[i].Ram().c_str());
@@ -83,7 +89,10 @@ void NCursesDisplay::DisplayProcesses(std::vector<Process>& processes,
               Format::ElapsedTime(processes[i].UpTime()).c_str());
     mvwprintw(window, row, command_column,
               processes[i].Command().substr(0, window->_maxx - 46).c_str());
+   
   }
+
+
 }
 
 void NCursesDisplay::Display(System& system, int n) {
@@ -102,8 +111,13 @@ void NCursesDisplay::Display(System& system, int n) {
     init_pair(2, COLOR_GREEN, COLOR_BLACK);
     box(system_window, 0, 0);
     box(process_window, 0, 0);
+    
     DisplaySystem(system, system_window);
+  
+ 
+  
     DisplayProcesses(system.Processes(), process_window, n);
+  
     wrefresh(system_window);
     wrefresh(process_window);
     refresh();

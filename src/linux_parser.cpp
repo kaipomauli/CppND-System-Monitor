@@ -19,12 +19,12 @@ using std::vector;
 
 std::string LinuxParser::ltrim(const std::string& s) {
   size_t start = s.find_first_not_of(WHITESPACE);
-  return (start == std::string::npos) ? "" : s.substr(start);
+  return (start == std::string::npos) ? std::string("") : s.substr(start);
 }
 
 std::string LinuxParser::rtrim(const std::string& s) {
   size_t end = s.find_last_not_of(WHITESPACE);
-  return (end == std::string::npos) ? "" : s.substr(0, end + 1);
+  return (end == std::string::npos) ? std::string("") : s.substr(0, end + 1);
 }
 
 std::string LinuxParser::trim(const std::string& s) { return rtrim(ltrim(s)); }
@@ -93,9 +93,9 @@ float LinuxParser::MemoryUtilization() {
   string key;
   string value;
   string unit;
-  float memfree;
-  float memtotal;
-  float memUtil;
+  float memfree=0.0;
+  float memtotal=0.0;
+  float memUtil=0.0;
   bool memfreeSet = false;
   bool memtotalSet = false;
   fs::path fullpath = kProcDirectory;
@@ -137,11 +137,11 @@ float LinuxParser::MemoryUtilization() {
 }
 
 
-long LinuxParser::UpTime() { 
+long int LinuxParser::UpTime() { 
     string line;
   string key;
   string value;
-  long uptime;
+  long int uptime=0;
 
   fs::path fullpath = kProcDirectory / kUptimeFilename;
   std::ifstream filestream(fullpath);
@@ -182,10 +182,10 @@ long LinuxParser::ActiveJiffies() { return 0; }
 // TODO: Read and return the number of idle jiffies for the system
 long LinuxParser::IdleJiffies() { return 0; }
 
-vector<unsigned long> LinuxParser::CpuUtil(int pid) {
+vector<unsigned long int> LinuxParser::CpuUtil(int pid) {
   string line;
   string key;
-  vector<unsigned long> statInt;
+  vector<unsigned long int> statInt;
   vector<string> statData;
   fs::path pidPath(std::to_string(pid));
   fs::path fullpath = kProcDirectory / pidPath / kStatFilename;
@@ -252,7 +252,7 @@ int LinuxParser::TotalProcesses() {
   string line;
   string key;
   string value;
-  int proc;
+  int proc=0;
   
 
   fs::path fullpath = kProcDirectory / kStatFilename;
@@ -287,7 +287,7 @@ int LinuxParser::RunningProcesses() {
   string line;
   string key;
   string value;
-  int proc;
+  int proc=0;
 
   fs::path fullpath = kProcDirectory / kStatFilename;
   std::ifstream filestream(fullpath);
@@ -365,7 +365,7 @@ string LinuxParser::Ram(int pid) {
   } else {
     std::cout << "Could not open file." << std::endl;
   }
-  unsigned int ram_kb;
+  unsigned int ram_kb=0;
   try {
     ram_kb = std::stoi(trim(ramStr));
   } catch (std::invalid_argument& e) {
@@ -432,7 +432,7 @@ string LinuxParser::User(int pid) {
 }
 
 
-long LinuxParser::UpTime(int pid) { 
+long int LinuxParser::UpTime(int pid) { 
     string line;
   string key;
   
@@ -455,7 +455,7 @@ long LinuxParser::UpTime(int pid) {
   } else {
     std::cout << "PID Uptime: Could not open file." << std::endl;
   }
-  long int ut;
+  long int ut=0;
   try {
   ut= std::stoi(trim(statData[21])) / sysconf(_SC_CLK_TCK);
   } catch (std::invalid_argument& e) {

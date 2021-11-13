@@ -37,7 +37,7 @@ void Process::setCpuUtilization() {
     prev_starttime = starttime;
     prev_Sys_uptime = Sys_uptime;
 
-    float cpuPercentage = secsld > 0 ? float(totald) / float(secsld):0.0;
+    float cpuPercentage = secsld > 0 ? float(totald) / float(secsld):float(0.0);
     util_ = cpuPercentage;
     
 }
@@ -55,8 +55,8 @@ long int Process::UpTime() { return proc_uptime_; }
 
 bool Process::operator<(Process& a ) { 
         bool cpuEqu = this->CpuUtilization() == a.CpuUtilization();
-      float ramThis;
-        float ram_a; 
+      float ramThis=0.0;
+        float ram_a=0.0; 
       try {
         ramThis = std::stof(LinuxParser::trim(this->Ram()));
         ram_a = std::stof(LinuxParser::trim(a.Ram()));

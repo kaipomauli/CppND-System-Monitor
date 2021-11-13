@@ -8,7 +8,7 @@
 
 float Processor::Utilization() { 
     
-    unsigned long long int user, nice, system, idle, iowait, irq, softirq, steal, guest, guest_nice,  PrevIdle, PrevNonIdle, PrevTotal, Idle_, NonIdle, Total,
+    unsigned long long int user, nice, system, idle, iowait, irq, softirq, steal,  PrevIdle, PrevNonIdle, PrevTotal, Idle_, NonIdle, Total,
         totald,idled;
     float CPU_Percentage;
 	std::vector<std::string> cpudataStr = LinuxParser::CpuUtilization();
@@ -38,7 +38,7 @@ float Processor::Utilization() {
   Total = Idle_ + NonIdle;
   totald = Total - PrevTotal;
   idled = Idle_ - PrevIdle;
-  CPU_Percentage = (totald - idled) / totald;
+  CPU_Percentage = float((totald - idled) / totald);
 
   prev_user = user;
   prev_nice = nice;

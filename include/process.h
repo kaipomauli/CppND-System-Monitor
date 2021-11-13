@@ -29,10 +29,13 @@ class Process {
       : pid_(pid),user_(user),ram_(ram),cmd_(cmd),proc_uptime_(proc_uptime){};
   // TODO: Declare any necessary private members
  private:
-  std::string ram_,user_,cmd_;
-  int pid_;
-  float util_;
-  long int proc_uptime_;
+  int pid_=-1;
+  std::string user_ = "";
+  std::string ram_ = "";
+  std::string cmd_ = "";
+  long int proc_uptime_ = 0;
+  float util_=-1.0;
+  
   unsigned long int prev_utime = 0, prev_stime = 0, prev_cutime = 0,
                     prev_cstime = 0, prev_starttime = 0, prev_Sys_uptime = 0;
                     
