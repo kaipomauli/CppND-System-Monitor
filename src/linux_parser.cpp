@@ -169,19 +169,6 @@ long int LinuxParser::UpTime() {
     return uptime;
 }
 
-// TODO: Read and return the number of jiffies for the system
-long LinuxParser::Jiffies() { return 0; }
-
-// TODO: Read and return the number of active jiffies for a PID
-// REMOVE: [[maybe_unused]] once you define the function
-long LinuxParser::ActiveJiffies(int pid[[maybe_unused]]) { return 0; }
-
-// TODO: Read and return the number of active jiffies for the system
-long LinuxParser::ActiveJiffies() { return 0; }
-
-// TODO: Read and return the number of idle jiffies for the system
-long LinuxParser::IdleJiffies() { return 0; }
-
 vector<unsigned long int> LinuxParser::CpuUtil(int pid) {
   string line;
   string key;
@@ -461,5 +448,5 @@ long int LinuxParser::UpTime(int pid) {
   } catch (std::invalid_argument& e) {
     std::cout << "fault in stoi in Uptime with pid" << std::endl;
   }
-  return ut;
+  return LinuxParser::UpTime()-ut;
 }
